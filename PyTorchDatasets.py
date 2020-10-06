@@ -214,9 +214,8 @@ class FFHQ(VisionDataset):
         self.return_all = return_all
 
         print("root:",self.root)
-        all_folders = os.listdir(self.root)
 
-        self.length = sum([len(os.listdir(os.path.join(self.root,folder))) for folder in all_folders]) # = 70000
+        self.length = len(os.listdir(root)) # = 70000
         self.fixed_transform = transforms.Compose(
                 [ transforms.Resize(imsize),
                     transforms.CenterCrop(imsize),
@@ -244,9 +243,8 @@ class FFHQ(VisionDataset):
 
     def random_batch(self,index, fixed=False):
 
-        folder = str(int(np.floor(index/1000)*1000)).zfill(5)
-        file = str(index).zfill(5) + ".png"
-        image_path = os.path.join(self.root, folder , file )
+        file = str(index).zfill(len(str(self.length))) + ".jpg"
+        image_path = os.path.join(self.root, file )
         img = Image.open( image_path).convert('RGB')
         if fixed:
             img = self.fixed_transform(img)

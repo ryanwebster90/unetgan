@@ -1,7 +1,7 @@
 python train.py \
 --dataset FFHQ --parallel --shuffle   \
 --which_best FID \
---batch_size 20 --num_G_accumulations 1 --num_D_accumulations 1 \
+--batch_size 8 --num_G_accumulations 1 --num_D_accumulations 1 \
 --num_D_steps 1 --G_lr 1e-4 --D_lr 5e-4 --D_B2 0.999 --G_B2 0.999 \
 --G_attn 0 --D_attn 0 \
 --SN_eps 1e-6 --BN_eps 1e-5 --adam_eps 1e-6 \
@@ -17,5 +17,5 @@ python train.py \
 --sample_every 4000   \
 --id ffhq_unet_bce_noatt_cutmix_consist --gpus "0,1" --unconditional \
 --unet_mixup --slow_mixup --full_batch_mixup --consistency_loss_and_augmentation --warmup_epochs 100 \
---base_root path/to/folder_for_results \
---data_folder /path/to/images256x256
+--base_root results/ \
+--data_folder lsun_cat_256/lsun_cat/
