@@ -223,7 +223,7 @@ def run(config):
 
         batch_size = config['batch_size']
         print("rooooot:",root)
-        dataset = ImageFolder(root = root, transform = transform, imsize = config["resolution"])
+        dataset = ImageFolder(root = root, transform = transform)
         data_loader = DataLoader(dataset, batch_size, shuffle = True, drop_last = True)
         loaders = [data_loader]
 
