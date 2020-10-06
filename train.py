@@ -223,50 +223,12 @@ def run(config):
 
         batch_size = config['batch_size']
         print("rooooot:",root)
-        dataset = FFHQ(root = root, transform = transform, batch_size = batch_size*config["num_D_accumulations"], imsize = config["resolution"])
-        data_loader = DataLoader(dataset, batch_size, shuffle = True, drop_last = True)
-        loaders = [data_loader]
-
-    elif config["dataset"]=="celeba128":
-
-        root =  config["data_folder"] #
-        root_perm =  config["data_folder"]
-        transform = transforms.Compose(
-            [
-                transforms.Scale(config["resolution"]),
-                transforms.CenterCrop(config["resolution"]),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-            ]
-        )
-
-        batch_size = config['batch_size']
-        dataset = Celeba(root = root, transform = transform, batch_size = batch_size*config["num_D_accumulations"], imsize = config["resolution"])
+        dataset = ImageFolder(root = root, transform = transform, imsize = config["resolution"])
         data_loader = DataLoader(dataset, batch_size, shuffle = True, drop_last = True)
         loaders = [data_loader]
 
 
-    elif config["dataset"]=="coco_animals":
 
-        batch_size = config['batch_size']
-
-        transform=transforms.Compose(
-                [ transforms.Resize(config["resolution"]),
-                    transforms.CenterCrop(config["resolution"]),
-                    transforms.RandomHorizontalFlip(),
-                    #transforms.ColorJitter(brightness=0.01, contrast=0.01, saturation=0.01, hue=0.01),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                ])
-        classes = ['bird','cat','dog','horse','sheep','cow','elephant','monkey','zebra','giraffe']
-
-        root = config["data_folder"]
-        root_perm = config["data_folder"]
-
-        dataset = CocoAnimals(root=root, batch_size = batch_size*config["num_D_accumulations"], classes = classes, transform=transform , imsize = config["resolution"])
-        data_loader = DataLoader(dataset,batch_size*config["num_D_accumulations"],drop_last=True,num_workers=1)#,shuffle=False)
-        loaders = [data_loader]
 
 
     print("Loaded ", config["dataset"])
@@ -409,10 +371,10 @@ def run(config):
                                       state_dict, config, experiment_name, sample_only=True)
 
 
-                    with torch.no_grad():
-                        real_batch = dataset.fixed_batch()
-                    train_fns.save_and_sample(G, D, G_ema, z_, y_, fixed_z, fixed_y,
-                                      state_dict, config, experiment_name, sample_only=True, use_real = True, real_batch = real_batch)
+#                     with torch.no_grad():
+#                         real_batch = dataset.fixed_batch()
+#                     train_fns.save_and_sample(G, D, G_ema, z_, y_, fixed_z, fixed_y,
+#                                       state_dict, config, experiment_name, sample_only=True, use_real = True, real_batch = real_batch)
 
                     # also, visualize mixed images and the decoder predicitions
                     if config["unet_mixup"]:
@@ -425,20 +387,20 @@ def run(config):
                                                                          config['num_standing_accumulations'])
 
                             if config["dataset"]=="coco_animals":
-                                real_batch, real_y = dataset.fixed_batch(return_labels = True)
+#                                 real_batch, real_y = dataset.fixed_batch(return_labels = True)
 
                                 fixed_Gz = nn.parallel.data_parallel(which_G, (fixed_z[:n], which_G.shared(real_y[:n])))
                                 mixed = target_map[:n]*real_batch[:n]+(1-target_map[:n])*fixed_Gz
                                 train_fns.save_and_sample(G, D, G_ema, z_[:n], y_[:n], fixed_z[:n], fixed_y[:n],
                                             state_dict, config, experiment_name+"_mix", sample_only=True, use_real = True, real_batch = mixed, mixed=True, target_map = target_map[:n])
 
-                            else:
-                                real_batch = dataset.fixed_batch()
-                                fixed_Gz = nn.parallel.data_parallel(which_G, (fixed_z[:n], which_G.shared(fixed_z[:n]))) #####shouldnt that be fixed_y?
+#                             else:
+#                                 real_batch = dataset.fixed_batch()
+#                                 fixed_Gz = nn.parallel.data_parallel(which_G, (fixed_z[:n], which_G.shared(fixed_z[:n]))) #####shouldnt that be fixed_y?
 
-                                mixed = target_map[:n]*real_batch[:n]+(1-target_map[:n])*fixed_Gz
-                                train_fns.save_and_sample(G, D, G_ema, z_[:n], y_[:n], fixed_z[:n], fixed_y[:n],
-                                            state_dict, config, experiment_name+"_mix", sample_only=True, use_real = True, real_batch = mixed, mixed=True, target_map = target_map[:n])
+#                                 mixed = target_map[:n]*real_batch[:n]+(1-target_map[:n])*fixed_Gz
+#                                 train_fns.save_and_sample(G, D, G_ema, z_[:n], y_[:n], fixed_z[:n], fixed_y[:n],
+#                                             state_dict, config, experiment_name+"_mix", sample_only=True, use_real = True, real_batch = mixed, mixed=True, target_map = target_map[:n])
 
 
           # Test every specified interval
