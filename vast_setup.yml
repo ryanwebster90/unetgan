@@ -1,0 +1,6 @@
+name: unetgan
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+    - wget
